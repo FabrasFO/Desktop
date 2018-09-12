@@ -1,0 +1,68 @@
+package br.com.projeto.a;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JLabel;
+import java.awt.Font;
+
+public class SobreP extends JDialog {
+
+	private final JPanel contentPanel = new JPanel();
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		try {
+			SobreP dialog = new SobreP();
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Create the dialog.
+	 */
+	public SobreP() {
+		setModal(true);
+		setBounds(100, 100, 450, 300);
+		getContentPane().setLayout(new BorderLayout());
+		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		getContentPane().add(contentPanel, BorderLayout.CENTER);
+		contentPanel.setLayout(null);
+		{
+			JLabel lblSistemaOsPara = new JLabel("Sistema OS para loja de roupa");
+			lblSistemaOsPara.setFont(new Font("Tahoma", Font.BOLD, 14));
+			lblSistemaOsPara.setBounds(106, 50, 216, 14);
+			contentPanel.add(lblSistemaOsPara);
+		}
+		{
+			JLabel lblDesenvolvidoPorFabricio = new JLabel("Desenvolvido por Fabricio Ferreira, Geovani Bandeira e Gustavo Orlando");
+			lblDesenvolvidoPorFabricio.setBounds(10, 121, 414, 14);
+			contentPanel.add(lblDesenvolvidoPorFabricio);
+		}
+		{
+			JLabel lblFormasDeContato = new JLabel("Formas de contato:");
+			lblFormasDeContato.setBounds(10, 170, 109, 14);
+			contentPanel.add(lblFormasDeContato);
+		}
+		{
+			JLabel lblEmailAdfsgarjasfacom = new JLabel("Email: adfsgarj@asfa.com");
+			lblEmailAdfsgarjasfacom.setBounds(10, 195, 151, 14);
+			contentPanel.add(lblEmailAdfsgarjasfacom);
+		}
+		{
+			JLabel lblTelefone = new JLabel("Telefone:96969-6969");
+			lblTelefone.setBounds(10, 219, 127, 14);
+			contentPanel.add(lblTelefone);
+		}
+	}
+
+}
