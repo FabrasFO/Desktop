@@ -1,0 +1,337 @@
+package br.com.projeto.a;
+
+import java.awt.EventQueue;
+
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
+import com.mysql.jdbc.Connection;
+
+import br.com.projeto.b.ModuloConexaoP;
+
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import java.awt.event.ActionListener;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.awt.event.ActionEvent;
+
+public class UsuarioP extends JInternalFrame {
+	/*
+	 * Objetos e variáveis para trabalahr com o sql
+	 */
+	Connection conexao = null;
+	PreparedStatement pst = null;
+	ResultSet rs = null;
+
+	/********** Métodos **********/
+	/* Pesquisar Usuário */
+	private void pesquisar() {
+		String pesquisar = "select * from tb_funca where idfunca=?";
+		try {
+			// a linha abaixo "digita" o comando sql
+			pst = conexao.prepareStatement(pesquisar);
+			// a linha abaixo substitui o parâmetro "?" pelo que foi digitado na caixa de
+			// texto txtUsuId
+			pst.setString(1, txtUsuId.getText());
+			// a linha abaixo executa o comando
+			rs = pst.executeQuery();
+			// estrutura que verifica se existe um usuário cadastrado
+			if (rs.next()) {
+				// preencher os campos do formulário
+				txtUsuNome.setText(rs.getString(2));
+				txtUsuFone.setText(rs.getString(3));
+				txtUsuCPF.setText(rs.getString(4));
+				txtUsuRG.setText(rs.getString(5));
+				txtUsuEmail.setText(rs.getString(6));
+				txtUsuLogin.setText(rs.getString(7));
+				txtUsuSenha.setText(rs.getString(8));
+			} else {
+				// mensagem se não existir um usuário
+				JOptionPane.showMessageDialog(null, "Usuário não cadastrado.");
+				// limpar os campos
+				// limpar();
+			}
+
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	/* Adicionar Usuário */
+	private void criar() {
+		String capturar = "Insert into tb_funca (idfunca,nomefunca,fonefunca,cpffunca,rgfunca,emailfunca,login,senha) values (?,?,?,?,?,?,?,?)";
+		try {
+			// preencher os campos do formulário
+			pst = conexao.prepareStatement(capturar);
+			pst.setString(1, txtUsuId.getText());
+			pst.setString(2, txtUsuNome.getText());
+			pst.setString(3, txtUsuFone.getText());
+			pst.setString(4, txtUsuCPF.getText());
+			pst.setString(5, txtUsuRG.getText());
+			pst.setString(6, txtUsuEmail.getText());
+			pst.setString(7, txtUsuLogin.getText());
+			pst.setString(8, txtUsuSenha.getText());
+			// Validação dos campos obrigatórios
+			if ((txtUsuId.getText().isEmpty()) || (txtUsuNome.getText().isEmpty()) || (txtUsuFone.getText().isEmpty())
+					|| (txtUsuCPF.getText().isEmpty()) ||  (txtUsuRG.getText().isEmpty()) ||
+					(txtUsuEmail.getText().isEmpty()) || 
+					(txtUsuLogin.getText().isEmpty()) || 
+					(txtUsuSenha.getText().isEmpty())) {
+				JOptionPane.showMessageDialog(null, "Preencha os campos obrigatórios");
+
+			} else {
+				// Criando uma variável para executar a query e exibir uma mensagem ao usuário
+				int adicionado = pst.executeUpdate();
+				if (adicionado == 1) {
+					JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso");
+					limpar();
+				} else {
+					JOptionPane.showMessageDialog(null, "Erro ao cadastrar o usuário");
+				}
+
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+	
+	// Método para Atualizar os clientes
+	
+		private void alterar() {
+			String alterar = "update tb_funca set nomefunca = ?, fonefunca = ?, cpffunca = ?, rgfunca = ?,emailfunca = ?, login = ?, senha = ? where idfunca = ?";
+			
+			try {
+				pst = conexao.prepareStatement(alterar);
+				pst.setString(1, txtUsuNome.getText());
+				pst.setString(2, txtUsuFone.getText());
+				pst.setString(3, txtUsuCPF.getText());
+				pst.setString(4, txtUsuRG.getText());
+				pst.setString(5, txtUsuEmail.getText());
+				pst.setString(6, txtUsuLogin.getText());
+				pst.setString(7, txtUsuSenha.getText());
+				pst.setString(8, txtUsuId.getText());
+				
+				// Validação dos campos obrigatórios
+							if ((txtUsuNome.getText().isEmpty()) ||
+								(txtUsuFone.getText().isEmpty()) ||
+								(txtUsuCPF.getText().isEmpty()) || 
+								(txtUsuRG.getText().isEmpty()) || 
+								(txtUsuEmail.getText().isEmpty()) ||
+								(txtUsuLogin.getText().isEmpty()) ||
+								(txtUsuSenha.getText().isEmpty())
+								) {
+								
+								JOptionPane.showMessageDialog(null, "Preencha os campos obrigatórios");
+
+							} else {
+								// Criando uma variável para executar a query e exibir uma mensagem ao usuário
+								int adicionado = pst.executeUpdate();
+								if (adicionado == 1) {
+									JOptionPane.showMessageDialog(null, "Usuário alterado com sucesso");
+									limpar();
+								} else {
+									JOptionPane.showMessageDialog(null, "Erro ao alterar o usuário");
+								}
+
+							}
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
+		// Método para apagar os usuários
+		private void remover() {
+			String apagar = "delete from tb_funca where idfunca = ?";
+			try {
+				pst = conexao.prepareStatement(apagar);
+				pst.setString(1, txtUsuId.getText());
+				// antes de remover o usuário confirmar
+				// a variável abaixo recebe a opção da caixa de diálogo
+				int confirma = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja remover esse usuário?","Atenção",JOptionPane.YES_NO_OPTION);
+				if (confirma == JOptionPane.YES_OPTION) {
+					int removido = pst.executeUpdate();
+					if (removido == 1) {
+						JOptionPane.showMessageDialog(null, "Usuário removido com sucesso");
+						limpar();
+					} else {
+						JOptionPane.showMessageDialog(null, "Não foi possivel remover o usuário");
+					}
+				}
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
+
+	// Método para limpar os campos
+			private void limpar() {
+				txtUsuId.setText(null);
+				txtUsuNome.setText(null);
+				txtUsuFone.setText(null);
+				txtUsuRG.setText(null);
+				txtUsuCPF.setText(null);
+				txtUsuEmail.setText(null);
+				txtUsuLogin.setText(null);
+				txtUsuSenha.setText(null);
+			}
+
+	private JTextField txtUsuId;
+	private JTextField txtUsuNome;
+	private JTextField txtUsuFone;
+	private JTextField txtUsuLogin;
+	private JTextField txtUsuSenha;
+	private JTextField txtUsuRG;
+	private JTextField txtUsuCPF;
+	private JTextField txtUsuEmail;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					UsuarioP frame = new UsuarioP();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public UsuarioP() {
+		setIconifiable(true);
+		setClosable(true);
+		setTitle("Usu\u00E1rio");
+		setBounds(100, 100, 640, 480);
+		getContentPane().setLayout(null);
+
+		JLabel lblId = new JLabel("ID");
+		lblId.setBounds(20, 11, 46, 14);
+		getContentPane().add(lblId);
+
+		txtUsuId = new JTextField();
+		txtUsuId.setBounds(10, 25, 277, 20);
+		getContentPane().add(txtUsuId);
+		txtUsuId.setColumns(10);
+
+		JLabel lblNome = new JLabel("Nome");
+		lblNome.setBounds(20, 56, 46, 14);
+		getContentPane().add(lblNome);
+
+		txtUsuNome = new JTextField();
+		txtUsuNome.setBounds(10, 83, 277, 20);
+		getContentPane().add(txtUsuNome);
+		txtUsuNome.setColumns(10);
+
+		JLabel lblFone = new JLabel("Telefone");
+		lblFone.setBounds(20, 114, 113, 14);
+		getContentPane().add(lblFone);
+
+		txtUsuFone = new JTextField();
+		txtUsuFone.setBounds(10, 139, 277, 20);
+		getContentPane().add(txtUsuFone);
+		txtUsuFone.setColumns(10);
+
+		JLabel lblLogin = new JLabel("Login");
+		lblLogin.setBounds(324, 114, 46, 14);
+		getContentPane().add(lblLogin);
+
+		txtUsuLogin = new JTextField();
+		txtUsuLogin.setBounds(325, 139, 277, 20);
+		getContentPane().add(txtUsuLogin);
+		txtUsuLogin.setColumns(10);
+
+		JLabel lblSenha = new JLabel("Senha");
+		lblSenha.setBounds(324, 170, 46, 14);
+		getContentPane().add(lblSenha);
+
+		txtUsuSenha = new JTextField();
+		txtUsuSenha.setBounds(325, 197, 277, 20);
+		getContentPane().add(txtUsuSenha);
+		txtUsuSenha.setColumns(10);
+
+		JButton btnAdicionar = new JButton("");
+		btnAdicionar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				criar();
+
+			}
+		});
+		btnAdicionar.setSelectedIcon(new ImageIcon(UsuarioP.class.getResource("/br/com/projeto/icones/create.png")));
+		btnAdicionar.setIcon(new ImageIcon(UsuarioP.class.getResource("/br/com/projeto/icones/create.png")));
+		btnAdicionar.setToolTipText("Adicionar usuário");
+		btnAdicionar.setBounds(20, 253, 80, 80);
+		getContentPane().add(btnAdicionar);
+
+		JButton btnDeletar = new JButton("");
+		btnDeletar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				remover();
+			}
+		});
+		btnDeletar.setIcon(new ImageIcon(UsuarioP.class.getResource("/br/com/projeto/icones/delete.png")));
+		btnDeletar.setToolTipText("Apagar usu\u00E1rio");
+		btnDeletar.setBounds(290, 256, 80, 80);
+		getContentPane().add(btnDeletar);
+
+		JButton btnPesquisar = new JButton("");
+		btnPesquisar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pesquisar();
+			}
+		});
+		btnPesquisar.setIcon(new ImageIcon(UsuarioP.class.getResource("/br/com/projeto/icones/read.png")));
+		btnPesquisar.setToolTipText("Pesquisar usu\u00E1rio");
+		btnPesquisar.setBounds(110, 256, 80, 80);
+		getContentPane().add(btnPesquisar);
+
+		JButton btnUpdate = new JButton("");
+		btnUpdate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				alterar();
+			}
+		});
+		btnUpdate.setIcon(new ImageIcon(UsuarioP.class.getResource("/br/com/projeto/icones/update.png")));
+		btnUpdate.setToolTipText("Alterar usu\u00E1rio");
+		btnUpdate.setBounds(200, 256, 80, 80);
+		getContentPane().add(btnUpdate);
+
+		txtUsuRG = new JTextField();
+		txtUsuRG.setBounds(325, 25, 277, 20);
+		getContentPane().add(txtUsuRG);
+		txtUsuRG.setColumns(10);
+
+		JLabel lblRg = new JLabel("RG");
+		lblRg.setBounds(325, 11, 46, 14);
+		getContentPane().add(lblRg);
+
+		JLabel lblCpf = new JLabel("CPF");
+		lblCpf.setBounds(20, 170, 46, 14);
+		getContentPane().add(lblCpf);
+
+		txtUsuCPF = new JTextField();
+		txtUsuCPF.setBounds(10, 197, 277, 20);
+		getContentPane().add(txtUsuCPF);
+		txtUsuCPF.setColumns(10);
+
+		JLabel lblEmail = new JLabel("Email");
+		lblEmail.setBounds(324, 56, 46, 14);
+		getContentPane().add(lblEmail);
+
+		txtUsuEmail = new JTextField();
+		txtUsuEmail.setBounds(325, 81, 277, 20);
+		getContentPane().add(txtUsuEmail);
+		txtUsuEmail.setColumns(10);
+
+		// Importante! -> Usar o método conector() do Módulo do Conexão
+		conexao = (Connection) ModuloConexaoP.conector();
+	}
+}
