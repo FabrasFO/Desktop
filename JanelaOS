@@ -1,0 +1,394 @@
+package br.com.projeto.a;
+
+import java.awt.EventQueue;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import javax.swing.JTable;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+import com.mysql.jdbc.Connection;
+
+import br.com.projeto.b.ModuloConexaoP;
+import net.proteanit.sql.DbUtils;
+
+import javax.swing.border.BevelBorder;
+import javax.swing.ListSelectionModel;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JScrollPane;
+
+import br.com.projeto.a.ClienteP;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+public class OsP extends JInternalFrame {
+	/*
+	 * Objetos e variáveis para trabalhar com o sql
+	 */
+	Connection conexao = null;
+	PreparedStatement pst = null;
+	ResultSet rs = null;
+
+	/* Pesquisar Usuário */
+	private void pesquisar() {
+		String pesquisar = "select * from tb_os where idos=?";
+		try {
+			// a linha abaixo "digita" o comando sql
+			pst = conexao.prepareStatement(pesquisar);
+			// a linha abaixo substitui o parâmetro "?" pelo que foi digitado na caixa de
+			// texto txtUsuId
+			pst.setString(1, txtOsId.getText());
+			// a linha abaixo executa o comando
+			rs = pst.executeQuery();
+			// estrutura que verifica se existe um usuário cadastrado
+			if (rs.next()) {
+				// preencher os campos do formulário
+				txtOsData.setText(rs.getString(2));
+				txtOsRoupa.setText(rs.getString(3));
+				txtOsTam.setText(rs.getString(4));
+				txtOsServi.setText(rs.getString(5));
+				txtOsValor.setText(rs.getString(6));
+				txtCliente.setText(rs.getString(7));
+
+			} else {
+				// mensagem se não existir um usuário
+				JOptionPane.showMessageDialog(null, "Os não cadastrada.");
+				// limpar os campos
+				// limpar();
+			}
+
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	/* Deletar Os */
+	private void remover() {
+		String apagar = "delete from tb_os where idos = ?";
+		try {
+			pst = conexao.prepareStatement(apagar);
+			pst.setString(1, txtOsId.getText());
+			// antes de remover o usuário confirmar
+			// a variável abaixo recebe a opção da caixa de diálogo
+			int confirma = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja remover essa Os ?", "Atenção",
+					JOptionPane.YES_NO_OPTION);
+			if (confirma == JOptionPane.YES_OPTION) {
+				int removido = pst.executeUpdate();
+				if (removido == 1) {
+					JOptionPane.showMessageDialog(null, "Os removida com sucesso");
+					limpar();
+				} else {
+					JOptionPane.showMessageDialog(null, "Não foi possivel remover a Os");
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	/* Adicionar Os */
+	private void criar() {
+		String capturar = "Insert into tb_os (idos,roupa,tamanho,servico,valor,cliente) values (?,?,?,?,?,?)";
+		try {
+			// preencher os campos do formulário
+			pst = conexao.prepareStatement(capturar);
+			pst.setString(1, txtOsId.getText());
+			pst.setString(2, txtOsRoupa.getText());
+			pst.setString(3, txtOsTam.getText());
+			pst.setString(4, txtOsServi.getText());
+			pst.setString(5, txtOsValor.getText());
+			pst.setString(6, txtCliente.getText());
+			// Validação dos campos obrigatórios
+			if ((txtOsId.getText().isEmpty()) || (txtOsRoupa.getText().isEmpty()) || (txtOsTam.getText().isEmpty())
+					|| (txtOsServi.getText().isEmpty()) || (txtOsValor.getText().isEmpty()) ||
+					(txtCliente.getText().isEmpty())) {
+				JOptionPane.showMessageDialog(null, "Preencha os campos obrigatórios");
+
+			} else {
+				// Criando uma variável para executar a query e exibir uma mensagem ao usuário
+				int adicionado = pst.executeUpdate();
+				if (adicionado == 1) {
+					JOptionPane.showMessageDialog(null, "OS cadastrado com sucesso");
+					limpar();
+				} else {
+					JOptionPane.showMessageDialog(null, "Erro ao cadastrar a OS");
+				}
+
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	/* Alterar */
+
+	private void alterar() {
+		String alterar = "update tb_os set data_os = ?, roupa = ?, tamanho = ?, servico = ?,valor = ?, cliente = ? where idos = ?";
+
+		try {
+			pst = conexao.prepareStatement(alterar);
+			pst.setString(1, txtOsData.getText());
+			pst.setString(2, txtOsRoupa.getText());
+			pst.setString(3, txtOsTam.getText());
+			pst.setString(4, txtOsServi.getText());
+			pst.setString(5, txtOsValor.getText());
+			pst.setString(6, txtCliente.getText());
+			pst.setString(7, txtOsId.getText());
+
+			// Validação dos campos obrigatórios
+			if ((txtOsId.getText().isEmpty()) || (txtOsData.getText().isEmpty()) || (txtOsTam.getText().isEmpty())
+					|| (txtOsServi.getText().isEmpty()) || (txtOsValor.getText().isEmpty())) {
+
+				JOptionPane.showMessageDialog(null, "Preencha os campos obrigatórios");
+
+			} else {
+				// Criando uma variável para executar a query e exibir uma mensagem ao usuário
+				int adicionado = pst.executeUpdate();
+				if (adicionado == 1) {
+					JOptionPane.showMessageDialog(null, "Os alterado com sucesso");
+					limpar();
+				} else {
+					JOptionPane.showMessageDialog(null, "Erro ao alterar o Os");
+				}
+
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	//Método Pesquisar Nome com filtro
+		private void pesquisarOs() {
+			String pesquisaNome = "select * from tb_os where cliente like ?";
+			try {
+				pst = conexao.prepareStatement(pesquisaNome);
+				//passando o conteúdo da caixa de pesquisa para ?
+				// Atenção ao "%" continuação da String pesquisaNome
+				pst.setString(1, txtCliente.getText() + "%");
+				rs = pst.executeQuery();
+				// a linha abaixo usa a biblioteca rs2xml.jar para preencher a tabela
+				tblOs.setModel(DbUtils.resultSetToTableModel(rs));
+				
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		}
+
+	// Método para setar os campos do formulário
+	private void setarCampos() {
+		int setar = tblOs.getSelectedRow(); // Selecionar e linha de tabela
+		txtOsId.setText(tblOs.getModel().getValueAt(setar, 0).toString());
+		txtOsData.setText(tblOs.getModel().getValueAt(setar, 1).toString());
+		txtOsRoupa.setText(tblOs.getModel().getValueAt(setar, 2).toString());
+		txtOsTam.setText(tblOs.getModel().getValueAt(setar, 3).toString());
+		txtOsServi.setText(tblOs.getModel().getValueAt(setar, 4).toString());
+		txtOsValor.setText(tblOs.getModel().getValueAt(setar, 5).toString());
+		txtCliente.setText(tblOs.getModel().getValueAt(setar, 6).toString());
+		
+
+	}
+
+	// Método para limpar os campos
+	private void limpar() {
+		txtOsId.setText(null);
+		txtOsRoupa.setText(null);
+		txtOsTam.setText(null);
+		txtOsServi.setText(null);
+		txtOsValor.setText(null);
+		txtOsData.setText(null);
+	}
+
+	private JTextField txtOsId;
+	private JTextField txtOsData;
+	private JTextField txtOsRoupa;
+	private JTextField txtOsTam;
+	private JTextField txtOsServi;
+	private JTextField txtOsValor;
+	private JTextField txtPesquisaOs;
+	private JTable tblOs;
+	private JTextField txtCliente;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					OsP frame = new OsP();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public OsP() {
+		setIconifiable(true);
+		setClosable(true);
+		setBounds(100, 100, 656, 488);
+		getContentPane().setLayout(null);
+
+		JLabel lblId = new JLabel("ID");
+		lblId.setBounds(30, 11, 46, 14);
+		getContentPane().add(lblId);
+
+		txtOsId = new JTextField();
+		txtOsId.setBounds(20, 36, 276, 20);
+		getContentPane().add(txtOsId);
+		txtOsId.setColumns(10);
+
+		JLabel lblData = new JLabel("Data");
+		lblData.setBounds(30, 67, 46, 14);
+		getContentPane().add(lblData);
+
+		txtOsData = new JTextField();
+		txtOsData.setEnabled(false);
+		txtOsData.setBounds(20, 92, 276, 20);
+		getContentPane().add(txtOsData);
+		txtOsData.setColumns(10);
+
+		JLabel lblRoupa = new JLabel("Roupa");
+		lblRoupa.setBounds(30, 123, 46, 14);
+		getContentPane().add(lblRoupa);
+
+		txtOsRoupa = new JTextField();
+		txtOsRoupa.setBounds(20, 148, 276, 20);
+		getContentPane().add(txtOsRoupa);
+		txtOsRoupa.setColumns(10);
+
+		JLabel lblTamanho = new JLabel("Tamanho");
+		lblTamanho.setBounds(323, 11, 192, 14);
+		getContentPane().add(lblTamanho);
+
+		txtOsTam = new JTextField();
+		txtOsTam.setBounds(323, 36, 291, 20);
+		getContentPane().add(txtOsTam);
+		txtOsTam.setColumns(10);
+
+		JLabel lblServio = new JLabel("Servi\u00E7o");
+		lblServio.setBounds(323, 67, 46, 14);
+		getContentPane().add(lblServio);
+
+		txtOsServi = new JTextField();
+		txtOsServi.setBounds(323, 92, 291, 20);
+		getContentPane().add(txtOsServi);
+		txtOsServi.setColumns(10);
+
+		JLabel lblValor = new JLabel("Valor");
+		lblValor.setBounds(323, 123, 46, 14);
+		getContentPane().add(lblValor);
+
+		txtOsValor = new JTextField();
+		txtOsValor.setBounds(321, 148, 293, 20);
+		getContentPane().add(txtOsValor);
+		txtOsValor.setColumns(10);
+
+		JButton btnAdicionar = new JButton("");
+		btnAdicionar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				criar();
+			}
+		});
+		btnAdicionar.setIcon(new ImageIcon(OsP.class.getResource("/br/com/projeto/icones/create.png")));
+		btnAdicionar.setBounds(20, 367, 80, 80);
+		getContentPane().add(btnAdicionar);
+
+		JButton btnDeletar = new JButton("");
+		btnDeletar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				remover();
+			}
+		});
+		btnDeletar.setIcon(new ImageIcon(OsP.class.getResource("/br/com/projeto/icones/delete.png")));
+		btnDeletar.setBounds(110, 367, 80, 80);
+		getContentPane().add(btnDeletar);
+
+		JButton button = new JButton("");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				alterar();
+			}
+		});
+		button.setIcon(new ImageIcon(OsP.class.getResource("/br/com/projeto/icones/update.png")));
+		button.setBounds(200, 367, 85, 80);
+		getContentPane().add(button);
+
+		JButton btnPesquisar = new JButton("");
+		btnPesquisar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pesquisar();
+			}
+		});
+		btnPesquisar.setIcon(new ImageIcon(OsP.class.getResource("/br/com/projeto/icones/read.png")));
+		btnPesquisar.setBounds(295, 367, 85, 80);
+		getContentPane().add(btnPesquisar);
+
+		JScrollPane tblOs1 = new JScrollPane();
+		tblOs1.setBounds(30, 237, 594, 88);
+		getContentPane().add(tblOs1);
+
+		tblOs = new JTable();
+		tblOs.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				setarCampos();
+			}
+		});
+		tblOs.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null},
+			},
+			new String[] {
+				"New column", "New column", "New column", "New column", "New column", "New column", "New column"
+			}
+		));
+		tblOs1.setViewportView(tblOs);
+
+		txtPesquisaOs = new JTextField();
+		txtPesquisaOs.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				pesquisarOs();
+			}
+		});
+		txtPesquisaOs.setBounds(30, 336, 550, 20);
+		getContentPane().add(txtPesquisaOs);
+		txtPesquisaOs.setColumns(10);
+
+		JLabel lblNewLabel = new JLabel("New label");
+		lblNewLabel.setIcon(new ImageIcon(OsP.class.getResource("/br/com/projeto/icones/pesquisar.png")));
+		lblNewLabel.setBounds(591, 327, 33, 38);
+		getContentPane().add(lblNewLabel);
+		
+		txtCliente = new JTextField();
+		txtCliente.setBounds(20, 204, 276, 20);
+		getContentPane().add(txtCliente);
+		txtCliente.setColumns(10);
+		
+		JLabel lblNewLabel_1 = new JLabel("Cliente");
+		lblNewLabel_1.setBounds(30, 179, 46, 14);
+		getContentPane().add(lblNewLabel_1);
+
+		// Importante! -> Usar o método conector() do Módulo do Conexão
+		conexao = (Connection) ModuloConexaoP.conector();
+
+	}
+}
