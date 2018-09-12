@@ -1,0 +1,151 @@
+package br.com.projeto.a;
+
+import java.awt.BorderLayout;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JMenuBar;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.ImageIcon;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.text.DateFormat;
+import java.util.Date;
+import java.awt.event.ActionEvent;
+import javax.swing.JDesktopPane;
+import javax.swing.JLabel;
+import java.awt.Font;
+
+public class JanelaP extends JFrame {
+
+	private JPanel painelJanela;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					JanelaP frame = new JanelaP();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public JanelaP() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 797, 600);
+		
+		JMenuBar menuBar = new JMenuBar();
+		setJMenuBar(menuBar);
+		
+		JMenu mnCadastro = new JMenu("Cadastro");
+		menuBar.add(mnCadastro);
+		
+		JMenuItem mntmOs = new JMenuItem("OS");
+		mntmOs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				OsP osp = new OsP();
+				osp.setVisible(true);
+				painelJanela.add(osp);
+			}
+		});
+		mntmOs.setIcon(new ImageIcon(JanelaP.class.getResource("/br/com/projeto/icones/os.png")));
+		mnCadastro.add(mntmOs);
+		
+		JMenuItem mntmUsurio = new JMenuItem("Usu\u00E1rio");
+		mntmUsurio.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UsuarioP usuariop = new UsuarioP();
+				usuariop.setVisible(true);
+				painelJanela.add(usuariop);
+				
+			}
+		});
+		mntmUsurio.setIcon(new ImageIcon(JanelaP.class.getResource("/br/com/projeto/icones/usuarios.png")));
+		mnCadastro.add(mntmUsurio);
+		
+		JMenuItem mntmCliente = new JMenuItem("Cliente");
+		mntmCliente.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ClienteP clientep = new ClienteP();
+				clientep.setVisible(true);
+				painelJanela.add(clientep);
+			}
+		});
+		mntmCliente.setIcon(new ImageIcon(JanelaP.class.getResource("/br/com/projeto/icones/clientes.png")));
+		mnCadastro.add(mntmCliente);
+		
+		JMenu mnAjuda = new JMenu("Ajuda");
+		menuBar.add(mnAjuda);
+		
+		JMenuItem mntmManual = new JMenuItem("Manual");
+		mntmManual.setIcon(new ImageIcon(JanelaP.class.getResource("/br/com/projeto/icones/manual.png")));
+		mnAjuda.add(mntmManual);
+		
+		JMenuItem mntmSobre = new JMenuItem("Sobre");
+		mntmSobre.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SobreP sobrep = new SobreP();
+				sobrep.setVisible(true);
+			}
+		});
+		mntmSobre.setIcon(new ImageIcon(JanelaP.class.getResource("/br/com/projeto/icones/sobre.png")));
+		mnAjuda.add(mntmSobre);
+		
+		JMenu mnOpes = new JMenu("Op\u00E7\u00F5es");
+		menuBar.add(mnOpes);
+		
+		JMenuItem mntmSair = new JMenuItem("Sair");
+		
+		mntmSair.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Código para fechar o programa
+				int confirma = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja sair?","Atenção",
+						JOptionPane.YES_NO_OPTION);
+				if (confirma == JOptionPane.YES_OPTION) {
+					dispose();	
+				}
+			}
+		});
+		mntmSair.setIcon(new ImageIcon(JanelaP.class.getResource("/br/com/projeto/icones/sair.png")));
+		mnOpes.add(mntmSair);
+		painelJanela = new JPanel();
+		painelJanela.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(painelJanela);
+		painelJanela.setLayout(null);
+		
+		JLabel label = new JLabel("");
+		label.setIcon(new ImageIcon(JanelaP.class.getResource("/br/com/projeto/icones/agoravai.png")));
+		label.setBounds(544, 411, 237, 129);
+		painelJanela.add(label);
+		
+		JLabel lblData = new JLabel("New label");
+		lblData.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lblData.setBounds(693, 0, 88, 49);
+		painelJanela.add(lblData);
+		
+		// Evento ao ativar a janela (carregar o formulário)
+				addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowActivated(WindowEvent arg0) {
+						// Substituindo a label pela data/hora do sistema
+						Date tempo = new Date();
+						DateFormat formatador = DateFormat.getDateInstance(DateFormat.SHORT);
+						lblData.setText(formatador.format(tempo));
+					}
+				});
+	}
+}
