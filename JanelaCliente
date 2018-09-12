@@ -1,0 +1,399 @@
+package br.com.projeto.a;
+
+import java.awt.EventQueue;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import javax.swing.JInternalFrame;
+import java.awt.Color;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+
+import com.mysql.jdbc.Connection;
+
+import br.com.projeto.b.ModuloConexaoP;
+
+import javax.swing.JButton;
+import javax.swing.ImageIcon;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+//rs2xml.jar (framework para facilitar o trabalho com tabelas)
+import net.proteanit.sql.DbUtils;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+public class ClienteP extends JInternalFrame {
+	
+	/*
+	 * Objetos e variáveis para trabalahr com o sql
+	 */
+	Connection conexao = null;
+	PreparedStatement pst = null;
+	ResultSet rs = null;
+	/********** Métodos **********/
+	/* Pesquisar Usuário */
+	private void pesquisar() {
+		String pesquisar = "select * from tb_clientes where idcli=?";
+		try {
+			// a linha abaixo "digita" o comando sql
+			pst = conexao.prepareStatement(pesquisar);
+			// a linha abaixo substitui o parâmetro "?" pelo que foi digitado na caixa de
+			// texto txtUsuId
+			pst.setString(1, txtCliId.getText());
+			// a linha abaixo executa o comando
+			rs = pst.executeQuery();
+			// estrutura que verifica se existe um usuário cadastrado
+			if (rs.next()) {
+				// preencher os campos do formulário
+				txtCliNome.setText(rs.getString(2));
+				txtCliFone.setText(rs.getString(3));
+				txtCliCPF.setText(rs.getString(4));
+				txtCliCEP.setText(rs.getString(5));
+				txtCliComp.setText(rs.getString(6));
+				txtCliEmail.setText(rs.getString(7));
+			} else {
+				// mensagem se não existir um usuário
+				JOptionPane.showMessageDialog(null, "Usuário não cadastrado.");
+				// limpar os campos
+				//limpar();
+			}
+
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+	
+	/* Adicionar Usuário */
+	private void criar() {
+		String capturar = "Insert into tb_clientes(idcli,nomecli,fonecli,cpfcli,cepcli,complementocli,emailcli) values (?,?,?,?,?,?,?)";
+		try {
+			// preencher os campos do formulário
+			pst = conexao.prepareStatement(capturar);
+			pst.setString(1, txtCliId.getText());
+			pst.setString(2, txtCliNome.getText());
+			pst.setString(3, txtCliFone.getText());
+			pst.setString(4, txtCliCPF.getText());
+			pst.setString(5, txtCliCEP.getText());
+			pst.setString(6, txtCliComp.getText());
+			pst.setString(7, txtCliEmail.getText());
+			// Validação dos campos obrigatórios
+			if ((txtCliNome.getText().isEmpty()) || (txtCliFone.getText().isEmpty()) || (txtCliCPF.getText().isEmpty())
+					|| (txtCliCEP.getText().isEmpty()) ||  (txtCliEmail.getText().isEmpty())) {
+				JOptionPane.showMessageDialog(null, "Preencha os campos obrigatórios");
+
+			} else {
+				// Criando uma variável para executar a query e exibir uma mensagem ao usuário
+				int adicionado = pst.executeUpdate();
+				if (adicionado == 1) {
+					JOptionPane.showMessageDialog(null, "Usuário cadastrado com sucesso");
+					limpar();
+				} else {
+					JOptionPane.showMessageDialog(null, "Erro ao cadastrar o usuário");
+				}
+
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+	// Método para Atualizar os clientes
+	
+	private void alterar() {
+		String alterar = "update tb_clientes set nomecli = ?, fonecli = ?, cpfcli = ?, cepcli = ?,complementocli = ?, emailcli = ? where idfunca = ?";
+		
+		try {
+			pst = conexao.prepareStatement(alterar);
+			pst.setString(1, txtCliNome.getText());
+			pst.setString(2, txtCliFone.getText());
+			pst.setString(3, txtCliCPF.getText());
+			pst.setString(4, txtCliCEP.getText());
+			pst.setString(5, txtCliComp.getText());
+			pst.setString(6, txtCliEmail.getText());
+			pst.setString(7, txtCliId.getText());
+			
+			// Validação dos campos obrigatórios
+						if ((txtCliNome.getText().isEmpty()) ||
+							(txtCliFone.getText().isEmpty()) ||
+							(txtCliCPF.getText().isEmpty()) || 
+							(txtCliCEP.getText().isEmpty()) || 
+							(txtCliEmail.getText().isEmpty())) {
+							
+							JOptionPane.showMessageDialog(null, "Preencha os campos obrigatórios");
+
+						} else {
+							// Criando uma variável para executar a query e exibir uma mensagem ao usuário
+							int adicionado = pst.executeUpdate();
+							if (adicionado == 1) {
+								JOptionPane.showMessageDialog(null, "Usuário alterado com sucesso");
+								limpar();
+							} else {
+								JOptionPane.showMessageDialog(null, "Erro ao alterar o usuário");
+							}
+
+						}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+	private void remover() {
+		String apagar = "delete from tb_clientes where idcli = ?";
+		try {
+			pst = conexao.prepareStatement(apagar);
+			pst.setString(1, txtCliId.getText());
+			// antes de remover o usuário confirmar
+			// a variável abaixo recebe a opção da caixa de diálogo
+			int confirma = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja remover esse usuário?","Atenção",JOptionPane.YES_NO_OPTION);
+			if (confirma == JOptionPane.YES_OPTION) {
+				int removido = pst.executeUpdate();
+				if (removido == 1) {
+					JOptionPane.showMessageDialog(null, "Usuário removido com sucesso");
+					limpar();
+				} else {
+					JOptionPane.showMessageDialog(null, "Não foi possivel remover o usuário");
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+	
+	//Método Pesquisar Nome com filtro
+	private void pesquisarNome() {
+		String pesquisaNome = "select * from tb_clientes where nomecli like ?";
+		try {
+			pst = conexao.prepareStatement(pesquisaNome);
+			//passando o conteúdo da caixa de pesquisa para ?
+			// Atenção ao "%" continuação da String pesquisaNome
+			pst.setString(1, txtCliPesquisaNome.getText() + "%");
+			rs = pst.executeQuery();
+			// a linha abaixo usa a biblioteca rs2xml.jar para preencher a tabela
+			tblClientes.setModel(DbUtils.resultSetToTableModel(rs));
+			
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+	// Método para setar os campos do formulário
+	private void setarCampos() {
+		int setar = tblClientes.getSelectedRow(); // Selecionar e linha de tabela
+		txtCliId.setText(tblClientes.getModel().getValueAt(setar, 0).toString());
+		txtCliNome.setText(tblClientes.getModel().getValueAt(setar, 1).toString());
+		txtCliFone.setText(tblClientes.getModel().getValueAt(setar, 2).toString());
+		txtCliCPF.setText(tblClientes.getModel().getValueAt(setar, 3).toString());
+		txtCliCEP.setText(tblClientes.getModel().getValueAt(setar, 4).toString());
+		txtCliComp.setText(tblClientes.getModel().getValueAt(setar, 5).toString());
+		txtCliEmail.setText(tblClientes.getModel().getValueAt(setar, 6).toString());
+		
+	}
+	
+	
+	// Método para limpar os campos
+		private void limpar() {
+			txtCliId.setText(null);
+			txtCliNome.setText(null);
+			txtCliFone.setText(null);
+			txtCliCPF.setText(null);
+			txtCliCEP.setText(null);
+			txtCliComp.setText(null);
+			txtCliEmail.setText(null);
+		}
+	
+	private JTextField txtCliId;
+	public JTextField txtCliNome;
+	private JTextField txtCliFone;
+	private JTextField txtCliCPF;
+	private JTextField txtCliCEP;
+	private JTextField txtCliComp;
+	private JTextField txtCliEmail;
+	private JTextField txtCliPesquisaNome;
+	private JTable tblClientes;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					ClienteP frame = new ClienteP();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+
+	/**
+	 * Create the frame.
+	 */
+	public ClienteP() {
+		setClosable(true);
+		setIconifiable(true);
+		getContentPane().setForeground(Color.BLACK);
+		getContentPane().setLayout(null);
+		
+		JLabel lblId = new JLabel("ID");
+		lblId.setBounds(10, 11, 46, 14);
+		getContentPane().add(lblId);
+		
+		txtCliId = new JTextField();
+		txtCliId.setBounds(10, 27, 96, 20);
+		getContentPane().add(txtCliId);
+		txtCliId.setColumns(10);
+		
+		JLabel lblNome = new JLabel("Nome");
+		lblNome.setBounds(116, 11, 46, 14);
+		getContentPane().add(lblNome);
+		
+		JLabel lblTelefone = new JLabel("Telefone");
+		lblTelefone.setBounds(10, 56, 106, 14);
+		getContentPane().add(lblTelefone);
+		
+		JLabel lblCpf = new JLabel("CPF");
+		lblCpf.setBounds(136, 56, 46, 14);
+		getContentPane().add(lblCpf);
+		
+		JLabel lblCep = new JLabel("CEP");
+		lblCep.setBounds(280, 56, 46, 14);
+		getContentPane().add(lblCep);
+		
+		JLabel lblComplemento = new JLabel("Complemento");
+		lblComplemento.setBounds(10, 101, 80, 14);
+		getContentPane().add(lblComplemento);
+		
+		JLabel lblEmail = new JLabel("Email");
+		lblEmail.setBounds(10, 147, 46, 14);
+		getContentPane().add(lblEmail);
+		
+		txtCliNome = new JTextField();
+		txtCliNome.setBounds(116, 27, 429, 20);
+		getContentPane().add(txtCliNome);
+		txtCliNome.setColumns(10);
+		
+		txtCliFone = new JTextField();
+		txtCliFone.setBounds(10, 70, 119, 20);
+		getContentPane().add(txtCliFone);
+		txtCliFone.setColumns(10);
+		
+		txtCliCPF = new JTextField();
+		txtCliCPF.setBounds(139, 70, 131, 20);
+		getContentPane().add(txtCliCPF);
+		txtCliCPF.setColumns(10);
+		
+		txtCliCEP = new JTextField();
+		txtCliCEP.setBounds(280, 70, 119, 20);
+		getContentPane().add(txtCliCEP);
+		txtCliCEP.setColumns(10);
+		
+		txtCliComp = new JTextField();
+		txtCliComp.setBounds(10, 116, 594, 20);
+		getContentPane().add(txtCliComp);
+		txtCliComp.setColumns(10);
+		
+		txtCliEmail = new JTextField();
+		txtCliEmail.setBounds(10, 161, 594, 20);
+		getContentPane().add(txtCliEmail);
+		txtCliEmail.setColumns(10);
+		
+		JButton btnCriar = new JButton("");
+		btnCriar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				criar();
+			}
+		});
+		btnCriar.setToolTipText("Criar Cliente");
+		btnCriar.setIcon(new ImageIcon(ClienteP.class.getResource("/br/com/projeto/icones/create.png")));
+		btnCriar.setBounds(10, 373, 80, 80);
+		getContentPane().add(btnCriar);
+		
+		JButton btnDeletar = new JButton("");
+		btnDeletar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				remover();
+			}
+		});
+		btnDeletar.setToolTipText("Deletar Cliente");
+		btnDeletar.setIcon(new ImageIcon(ClienteP.class.getResource("/br/com/projeto/icones/delete.png")));
+		btnDeletar.setBounds(102, 373, 80, 80);
+		getContentPane().add(btnDeletar);
+		
+		JButton btnProcurar = new JButton("");
+		btnProcurar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				pesquisar();
+			}
+		});
+		btnProcurar.setToolTipText("Procurar Cliente");
+		btnProcurar.setIcon(new ImageIcon(ClienteP.class.getResource("/br/com/projeto/icones/read.png")));
+		btnProcurar.setBounds(190, 373, 80, 80);
+		getContentPane().add(btnProcurar);
+		
+		JButton btnModificar = new JButton("");
+		btnModificar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				alterar();
+			}
+		});
+		btnModificar.setToolTipText("Modificar Cliente");
+		btnModificar.setIcon(new ImageIcon(ClienteP.class.getResource("/br/com/projeto/icones/update.png")));
+		btnModificar.setBounds(282, 373, 80, 80);
+		getContentPane().add(btnModificar);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(10, 192, 714, 139);
+		getContentPane().add(scrollPane);
+		
+		tblClientes = new JTable();
+		tblClientes.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				setarCampos();
+			}
+		});
+		tblClientes.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null, null},
+				{null, null, null, null, null, null, null, null},
+			},
+			new String[] {
+				"New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column"
+			}
+		));
+		scrollPane.setViewportView(tblClientes);
+		
+		txtCliPesquisaNome = new JTextField();
+		txtCliPesquisaNome.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				pesquisarNome();
+			}
+		});
+		txtCliPesquisaNome.setBounds(10, 342, 669, 20);
+		getContentPane().add(txtCliPesquisaNome);
+		txtCliPesquisaNome.setColumns(10);
+		
+		JLabel lblNewLabel = new JLabel("New label");
+		lblNewLabel.setIcon(new ImageIcon(ClienteP.class.getResource("/br/com/projeto/icones/pesquisar.png")));
+		lblNewLabel.setBounds(689, 336, 35, 32);
+		getContentPane().add(lblNewLabel);
+		setTitle("Cliente");
+		setBounds(100, 100, 750, 490);
+		
+		// Importante! -> Usar o método conector() do Módulo do Conexão
+				conexao = (Connection) ModuloConexaoP.conector();
+
+	}
+}
